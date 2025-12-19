@@ -24,17 +24,28 @@ public class AuthController {
     UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<UserDto> login(@Valid @RequestBody LoginRequest request) {
-            UserDto userDto = userService.Login(request);
-            return ResponseEntity.ok(userDto);
+    public ResponseEntity<APIResponse<UserDto>>login(@Valid @RequestBody LoginRequest request) {
+        UserDto userDto = userService.Login(request);
+        if(userDto !=null)
+        {
+            return ResponseEntity.status(HttpStatus.OK).body(APIResponse.success("Welcome"+ userDto.getName(), userDto));
+        }
+        else
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(APIResponse.failure("Login Failed"));
+        }
     }
 
     @PostMapping("/signup")
     public ResponseEntity<APIResponse<UserDto>> SignUp(@Valid @RequestBody SignupRequest request) {
 
-            UserDto userDto = userService.SignUp(request);
-
-             return ResponseEntity.status(HttpStatus.CREATED).body(APIResponse.success("Signup successful",userDto));
+        UserDto userDto = userService.SignUp(request);
+        if (userDto != null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(APIResponse.success("Signup successful", userDto));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(APIResponse.failure("Signup failed"));
+        }
 
     }
 }
+

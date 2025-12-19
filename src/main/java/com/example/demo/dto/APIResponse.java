@@ -16,9 +16,14 @@ public class APIResponse<T>
     private String message;
     private T data;
 
-    public static <T> APIResponse<T> success( String message, T data){
+    public static <T> APIResponse<T> success( String message, T data)
+    {
         return new APIResponse<>(true, message, data );
     }
 
+    public static <T> APIResponse <T> failure( String message)
+    {
+        return new APIResponse<>(false, message, null);
+    }
 
 }

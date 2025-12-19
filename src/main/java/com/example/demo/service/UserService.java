@@ -20,8 +20,18 @@ public class UserService {
     User user;
 
     public UserDto Login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new RuntimeException("Unregisterd User"));
-        return new UserDto(user.getId(), user.getName(), user.getEmail());
+        User user;
+        Optional<User> userContainer = userRepository.findByEmail(request.getEmail());
+        if(userContainer.isPresent())
+        {
+            user = userContainer.get();
+            return new UserDto(user.getId(), user.getName(), user.getEmail());
+        }
+        else
+        {
+            return null;
+        }
+
 
 
     }
@@ -30,7 +40,7 @@ public class UserService {
     public UserDto SignUp(SignupRequest request) {
         Optional<User> userContainer = userRepository.findByEmail(request.getEmail());
         if (userContainer.isPresent()) {
-            throw new RuntimeException("User Already Present, please LOGIN");
+            return null;
 
         } else {
             User user = new User();
