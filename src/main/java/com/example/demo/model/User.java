@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.management.relation.Role;
+
 
 @Entity
 @Data
@@ -22,12 +24,13 @@ public class User
     private String email;
     @Column(name = "password", nullable=false)
     private String password;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
 
-    public User(String name, String email, String password)
+    public enum Role
     {
-        this.name = name;
-        this.email= email;
-        this.password = password;
+        JOBSEEKER, EMPLOYER
     }
 
 

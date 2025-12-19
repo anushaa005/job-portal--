@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.management.relation.Role;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,5 +19,10 @@ public class SignupRequest {
     private String email;
     @Size(min = 6)
     private String password;
+    private Role role;
+    private enum role
+    {
+        JOBSEEKER, EMPLOYER
+    }
 
 }

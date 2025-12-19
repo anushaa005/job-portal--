@@ -47,15 +47,10 @@ public class UserService {
             user.setName(request.getName());
             user.setEmail(request.getEmail());
             user.setPassword(request.getPassword());
+            user.setRole(request.getRole());
             User savedUser = userRepository.save(user);
             return new UserDto(savedUser.getId(), savedUser.getName(), savedUser.getEmail());
         }
     }
 }
-      //  }
-       // User user = new User();
-       // user.setName(request.getName());
-      //  user.setEmail(request.getEmail());
-      //  user.setPassword(request.getPassword());
-       // User savedUser = userRepository.save(user);
-      //  return new UserDto(savedUser.getId(), savedUser.getName(), savedUser.getEmail());
+
