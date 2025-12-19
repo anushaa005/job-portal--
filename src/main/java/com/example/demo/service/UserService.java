@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.SignupRequest;
 import com.example.demo.dto.UserDto;
 import com.example.demo.model.User;
@@ -18,16 +19,9 @@ public class UserService {
     UserRepository userRepository;
     User user;
 
-    public UserDto Login(String email, String password) {
-        Optional<User> userContainer = userRepository.findByEmail(email);
-        if (userContainer.isPresent()) {
-            user = userContainer.get();
-            if (user.getPassword().equals(password)) {
-                return new UserDto(user.getId(), user.getName(), user.getEmail());
-            }
-        }
-
-        return new UserDto(0, "unknown", "unknown@gmail.com");
+    public UserDto Login(LoginRequest request) {
+        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(()->new RuntimeException("unable to signup"));
+        return new UserDto(user.getId(), user.getName(), user.getEmail());
 
 
     }
@@ -44,7 +38,12 @@ public class UserService {
 //            userRepository.save(user);
 //            return new UserDto(user.getId(), user.getName(), user.getEmail());
       //  }
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(()->new RuntimeException("unable to signup"));
-        return new UserDto(user.getId(), user.getName(), user.getEmail());
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+        User savedUser = userRepository.save(user);
+        return new UserDto(savedUser.getId(), savedUser.getName(), savedUser.getEmail());
+
     }
 }

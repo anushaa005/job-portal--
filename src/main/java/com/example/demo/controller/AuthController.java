@@ -19,7 +19,7 @@ public class AuthController
     @PostMapping("/login")
     public UserDto login(@RequestBody LoginRequest request)
     {
-       UserDto userDto= userService.Login(request.getEmail(), request.getPassword());
+       UserDto userDto= userService.Login(request);
       return userDto;
     }
 
