@@ -1,5 +1,8 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.JobRequest;
+import com.example.demo.dto.UserResponse;
+import com.example.demo.repository.UserRepository;
 import com.example.demo.response.ApiResponse;
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.SignupRequest;
@@ -9,10 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     @Autowired
     private final UserService userService;
+    @Autowired
+    private UserRepository userRepository;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<Void>>login(@Valid @RequestBody LoginRequest request) {
@@ -36,5 +38,11 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.SignUp(request));
 
     }
-}
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<UserResponse>> getUserByID(@PathVariable int id )
+    {
+       return ResponseEntity.ok(userService.getUserByID(id));
+    }
+
+}

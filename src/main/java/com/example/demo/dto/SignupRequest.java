@@ -1,5 +1,7 @@
 package com.example.demo.dto;
 
+import com.example.demo.enums.Role;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -7,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.management.relation.Role;
 
 @Data
 @NoArgsConstructor
@@ -19,6 +20,7 @@ public class SignupRequest {
     private String email;
     @Size(min = 6)
     private String password;
+
     private Role role;
     private enum role
     {
