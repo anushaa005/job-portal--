@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+
 import com.example.demo.dto.JobRequest;
 import com.example.demo.dto.UserResponse;
 import com.example.demo.repository.UserRepository;
@@ -7,11 +8,13 @@ import com.example.demo.response.ApiResponse;
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.SignupRequest;
 import com.example.demo.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 

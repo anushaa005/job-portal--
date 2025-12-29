@@ -36,7 +36,7 @@ public class JobApplicationController
  }
 
    @GetMapping("/job/{jobId}")
-    public ResponseEntity<ApiResponse<Page<JobAppResponse>>> getApplicationByJob(@PathVariable int jobId,@RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "5") int size, @RequestParam(defaultValue = "createdAt") String sortBy, @RequestParam(defaultValue = "desc") String direction)
+    public ResponseEntity<ApiResponse<Page<JobAppResponse>>> getApplicationByJob(@PathVariable int jobId,@RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "5") int size, @RequestParam(defaultValue = "appliedAt") String sortBy, @RequestParam(defaultValue = "desc") String direction)
    {
        return ResponseEntity.status(HttpStatus.OK).body(jobApplicationService.getApplicationByJob(jobId, page, size, sortBy, direction));
    }
