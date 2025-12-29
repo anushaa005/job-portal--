@@ -13,8 +13,13 @@ import com.example.demo.repository.JobRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.query.SortDirection;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -75,13 +80,15 @@ public class JobApplicationService
         return jobAppResponse;
     }
 
-    public ApiResponse<List<JobAppResponse>> getApplicationByJob(int jobId)
+    public ApiResponse<Page<JobAppResponse>> getApplicationByJob(int jobId, int page, int size, String sortBy, String direction)
     {
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("desc")? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort sort = Sort.by(sortDirection,sortBy);
+        Pageable pageable = PageRequest.of(page,size,sort);
         Job job = jobRepository.findJobById(jobId).orElseThrow(()-> new ResourceNotFoundException("Job does not exist"));
-        List<JobAppResponse> jobApplications = jobAppRepository.findAllByJob(job)
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
+        Page<JobAppResponse> jobApplications = jobAppRepository.findAllByJob(job, pageable)
+                .map(this::mapToResponse);
+
         return ApiResponse.success("Applications for JOB "+ jobId, jobApplications);
     }
 
@@ -89,6 +96,7 @@ public class JobApplicationService
     {
         JobApplication jobApplication = jobAppRepository.findJobApplicationById(applicationId).orElseThrow(()-> new ResourceNotFoundException("Application not found"));
         jobApplication.setStatus(status);
+        jobAppRepository.save(jobApplication);
         return ApiResponse.success("Application status updated",null);
     }
 

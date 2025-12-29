@@ -10,6 +10,10 @@ import com.example.demo.repository.JobRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -73,34 +77,38 @@ public class JobService
         return ApiResponse.success("Job Deleted Successfully",null);
     }
 
-    public ApiResponse<List<JobResponse>> searchJob(String keyword, String location)
+    public ApiResponse<Page<JobResponse>> searchJob(String keyword, String location, int page, int size, String sortBy, String direction)
     {
+
+        Sort.Direction sortDirection =
+                direction.equalsIgnoreCase("desc")
+                        ? Sort.Direction.DESC
+                        : Sort.Direction.ASC;
+
+        Sort sort = Sort.by(sortDirection, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+
        if(location==null && keyword!=null) {
-           List<JobResponse> jobs = jobRepository.findByTitleContainingIgnoreCase(keyword)
-                   .stream()
-                   .map(this::mapToResponse)
-                   .toList();
+           Page<JobResponse> jobs = jobRepository.findByTitleContainingIgnoreCase(keyword, pageable)
+                   .map(this::mapToResponse);
            return ApiResponse.success("Jobs fetched successfully", jobs);
        }
         else if (keyword==null && location!=null) {
-            List<JobResponse> jobs = jobRepository.findByLocationContainingIgnoreCase(location)
-                    .stream()
-                    .map(this::mapToResponse)
-                    .toList();
+            Page<JobResponse> jobs = jobRepository.findByLocationContainingIgnoreCase(location, pageable)
+                    .map(this::mapToResponse);
             return ApiResponse.success("Jobs fetched successfully", jobs);
         }
        else if (keyword!=null && location!=null) {
-           List<JobResponse> jobs = jobRepository.findByTitleContainingIgnoreCaseAndLocationContainingIgnoreCase(keyword, location)
-                   .stream()
-                   .map(this::mapToResponse)
-                   .toList();
+           Page<JobResponse> jobs = jobRepository.findByTitleContainingIgnoreCaseAndLocationContainingIgnoreCase(keyword, location, pageable)
+                   .map(this::mapToResponse);
            return ApiResponse.success("Jobs fetched successfully", jobs);
        }
        else  {
-           List<JobResponse> jobs = jobRepository.findAll()
-                   .stream()
-                   .map(this::mapToResponse)
-                   .toList();
+           Page<JobResponse> jobs = jobRepository.findAll(pageable)
+                   .map(this::mapToResponse);
+
+
            return ApiResponse.success("Jobs fetched successfully", jobs);
        }
 

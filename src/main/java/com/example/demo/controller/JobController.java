@@ -8,6 +8,7 @@ import com.example.demo.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,9 +33,9 @@ public class JobController {
         return ResponseEntity.ok(jobService.getAllJobs());
     }
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<List<JobResponse>>> searchJob(@RequestParam(required=false) String keyword,@RequestParam(required=false) String location)
+    public ResponseEntity<ApiResponse<Page<JobResponse>>> searchJob(@RequestParam(required=false) String keyword, @RequestParam(required=false) String location, @RequestParam(defaultValue = "0")int page, @RequestParam(defaultValue = "5") int size,@RequestParam(defaultValue = "createdAt") String sortBy, @RequestParam(defaultValue = "desc") String direction)
     {
-        return ResponseEntity.ok(jobService.searchJob(keyword,location));
+        return ResponseEntity.ok(jobService.searchJob(keyword,location,page, size,sortBy,direction));
     }
 
     @GetMapping("/{job_id}")

@@ -8,6 +8,7 @@ import com.example.demo.repository.JobRepository;
 import com.example.demo.response.ApiResponse;
 import com.example.demo.service.JobApplicationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,9 +36,9 @@ public class JobApplicationController
  }
 
    @GetMapping("/job/{jobId}")
-    public ResponseEntity<ApiResponse<List<JobAppResponse>>> getApplicationByJob(@PathVariable int jobId)
+    public ResponseEntity<ApiResponse<Page<JobAppResponse>>> getApplicationByJob(@PathVariable int jobId,@RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "5") int size, @RequestParam(defaultValue = "createdAt") String sortBy, @RequestParam(defaultValue = "desc") String direction)
    {
-       return ResponseEntity.status(HttpStatus.OK).body(jobApplicationService.getApplicationByJob(jobId));
+       return ResponseEntity.status(HttpStatus.OK).body(jobApplicationService.getApplicationByJob(jobId, page, size, sortBy, direction));
    }
 
    @PutMapping("/status/{applicationId}")
