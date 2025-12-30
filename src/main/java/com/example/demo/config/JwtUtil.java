@@ -14,7 +14,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    // TODO: Move to application.properties and use a stronger secret
+
     private static final String SECRET_KEY =
             "your-very-secure-random-base64-encoded-secret-key-minimum-256-bits-long-for-hs256-algorithm";
 
