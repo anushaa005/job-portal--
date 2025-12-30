@@ -20,11 +20,6 @@ public class SignupRequest {
     private String email;
     @Size(min = 6)
     private String password;
-
+    @NotNull(message = "Role cannot be null")
     private Role role;
-    private enum role
-    {
-        JOBSEEKER, EMPLOYER
-    }
-
 }
