@@ -35,6 +35,7 @@ public class SecurityConfig {
                     corsConfig.setAllowedOrigins(java.util.List.of("http://localhost:5173"));
                     corsConfig.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     corsConfig.setAllowedHeaders(java.util.List.of("*"));
+                    corsConfig.setAllowCredentials(true);
                     return corsConfig;
                 }))
                 .sessionManagement(
