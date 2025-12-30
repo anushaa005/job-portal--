@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -28,10 +27,10 @@ public class UserController {
     private UserRepository userRepository;
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<Void>>login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponse<String>>login(@Valid @RequestBody LoginRequest request) {
 
 
-            return ResponseEntity.status(HttpStatus.OK).body(userService.Login(request));
+        return ResponseEntity.status(HttpStatus.OK).body(userService.Login(request));
 
     }
 
@@ -45,7 +44,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponse>> getUserByID(@PathVariable int id )
     {
-       return ResponseEntity.ok(userService.getUserByID(id));
+        return ResponseEntity.ok(userService.getUserByID(id));
     }
 
 }

@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class JobAppRequest
 {
     private int jobId;
-    private int userId;
+   // private int userId;
 }

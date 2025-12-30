@@ -20,6 +20,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,37 +39,44 @@ public class JobApplicationService
     private final JobRepository jobRepository;
     private final UserRepository userRepository;
 
+
     public ApiResponse<Void> apply(JobAppRequest request)
-   {
-       Job job = jobRepository.findJobById(request.getJobId()).orElseThrow(()-> new ResourceNotFoundException("Job does not exist"));
-       User user = userRepository.findById(request.getUserId()).orElseThrow(()-> new ResourceNotFoundException(("User does not exit")));
-       if(job.getPostedBy().equals(user))
-       {
-           throw new InvalidApplicationRequest("You cannnot apply to your own job posting");
-       }
-       if(jobAppRepository.existsByJobAndUser(job,user))
-       {
-           throw new IllegalStateException("You have already applied to this job");
-       }
+    {
+        String email = getAuthenticatedUserEmail();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()->new  ResourceNotFoundException("No user found"));
+
+        Job job = jobRepository.findJobById(request.getJobId()).orElseThrow(()-> new ResourceNotFoundException("Job does not exist"));
+        if(job.getPostedBy().getId()==(user.getId()))
+        {
+            throw new InvalidApplicationRequest("You cannnot apply to your own job posting");
+        }
+        if(jobAppRepository.existsByJobAndUser(job,user))
+        {
+            throw new IllegalStateException("You have already applied to this job");
+        }
 
 
-           JobApplication jobApplication = new JobApplication();
-           jobApplication.setJob(job);
-           jobApplication.setUser(user);
-           jobApplication.setStatus(Status.APPLIED);
-           jobApplication.setAppliedAt(LocalDateTime.now());
-           jobAppRepository.save(jobApplication);
-           return ApiResponse.success("Applied to "+ job.getTitle(),null);
-   }
+        JobApplication jobApplication = new JobApplication();
+        jobApplication.setJob(job);
+        jobApplication.setUser(user);
+        jobApplication.setStatus(Status.APPLIED);
+        jobApplication.setAppliedAt(LocalDateTime.now());
+        jobAppRepository.save(jobApplication);
+        return ApiResponse.success("Applied to "+ job.getTitle(),null);
+    }
 
-     public ApiResponse<List<JobAppResponse>> getApplicationByUser(int userId)
-   {
-    User user = userRepository.findById(userId).orElseThrow(()-> new ResourceNotFoundException("User does not exist"));
-    List<JobAppResponse> jobApplications = jobAppRepository.findAllByUser(user)
-            .stream()
-            .map(this::mapToResponse)
-            .toList();
-       return ApiResponse.success("Applications by USER "+ userId, jobApplications);
+    public ApiResponse<List<JobAppResponse>> getApplicationByUser(int userId)
+    {
+        String email = getAuthenticatedUserEmail();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()->new  ResourceNotFoundException("No user found"));
+        List<JobAppResponse> jobApplications = jobAppRepository.findAllByUser(user)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+        return ApiResponse.success("Applications by USER "+ userId, jobApplications);
 
     }
     public JobAppResponse mapToResponse(JobApplication jobApplication)
@@ -82,10 +91,17 @@ public class JobApplicationService
 
     public ApiResponse<Page<JobAppResponse>> getApplicationByJob(int jobId, int page, int size, String sortBy, String direction)
     {
+        String email = getAuthenticatedUserEmail();
+        User currentUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         Sort.Direction sortDirection = direction.equalsIgnoreCase("desc")? Sort.Direction.DESC : Sort.Direction.ASC;
         Sort sort = Sort.by(sortDirection,sortBy);
         Pageable pageable = PageRequest.of(page,size,sort);
         Job job = jobRepository.findJobById(jobId).orElseThrow(()-> new ResourceNotFoundException("Job does not exist"));
+        if (job.getPostedBy().getId()!=(currentUser.getId())) {
+            throw new RuntimeException("Unauthorized to view applications for this job");
+        }
         Page<JobAppResponse> jobApplications = jobAppRepository.findAllByJob(job, pageable)
                 .map(this::mapToResponse);
 
@@ -94,11 +110,23 @@ public class JobApplicationService
 
     public ApiResponse<Void> updateApplicationStatus(int applicationId, Status status)
     {
-        JobApplication jobApplication = jobAppRepository.findJobApplicationById(applicationId).orElseThrow(()-> new ResourceNotFoundException("Application not found"));
+        String email = getAuthenticatedUserEmail();
+        User currentUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        JobApplication jobApplication = jobAppRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found"));
+
+        if (jobApplication.getJob().getPostedBy().getId()!=(currentUser.getId())) {
+            throw new RuntimeException("Unauthorized to update this application");
+        }
         jobApplication.setStatus(status);
         jobAppRepository.save(jobApplication);
         return ApiResponse.success("Application status updated",null);
     }
-
+    private String getAuthenticatedUserEmail()
+    {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getName();
+    }
 
 }

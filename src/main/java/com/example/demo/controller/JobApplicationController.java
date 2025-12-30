@@ -31,19 +31,19 @@ public class JobApplicationController
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<ApiResponse<List<JobAppResponse>>> getApplicationByUser(@PathVariable int userId)
- {
-    return ResponseEntity.status(HttpStatus.OK).body(jobApplicationService.getApplicationByUser(userId));
- }
+    {
+        return ResponseEntity.status(HttpStatus.OK).body(jobApplicationService.getApplicationByUser(userId));
+    }
 
-   @GetMapping("/job/{jobId}")
+    @GetMapping("/job/{jobId}")
     public ResponseEntity<ApiResponse<Page<JobAppResponse>>> getApplicationByJob(@PathVariable int jobId,@RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "5") int size, @RequestParam(defaultValue = "appliedAt") String sortBy, @RequestParam(defaultValue = "desc") String direction)
-   {
-       return ResponseEntity.status(HttpStatus.OK).body(jobApplicationService.getApplicationByJob(jobId, page, size, sortBy, direction));
-   }
+    {
+        return ResponseEntity.status(HttpStatus.OK).body(jobApplicationService.getApplicationByJob(jobId, page, size, sortBy, direction));
+    }
 
-   @PutMapping("/status/{applicationId}")
-   public ResponseEntity<ApiResponse<Void>> updateApplicationStatus(@PathVariable int applicationId, @RequestBody Status status)
-   {
-       return ResponseEntity.ok(jobApplicationService.updateApplicationStatus(applicationId,status));
-   }
+    @PutMapping("/status/{applicationId}")
+    public ResponseEntity<ApiResponse<Void>> updateApplicationStatus(@PathVariable int applicationId, @RequestBody Status status)
+    {
+        return ResponseEntity.ok(jobApplicationService.updateApplicationStatus(applicationId,status));
+    }
 }

@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.config.JwtUtil;
 import com.example.demo.dto.JobRequest;
 import com.example.demo.exception.EmailAlreadyExistsException;
 import com.example.demo.exception.IncorrectPasswordException;
@@ -13,6 +14,9 @@ import com.example.demo.repository.JobRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,15 +32,18 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final JobRepository jobRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
 
-    public ApiResponse<Void> Login(LoginRequest request) {
+    public ApiResponse<String> Login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not registered for this email"));
-        if (!user.getPassword().equals(request.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new IncorrectPasswordException("Password incorrect");
         }
-        return ApiResponse.success("Login successful", null);
+        String token = jwtUtil.generateToken(user);
+        return ApiResponse.success("Login successful", token);
 
 
     }
@@ -50,7 +57,7 @@ public class UserService {
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
         user.setCreatedAt(LocalDateTime.now());
         User savedUser = userRepository.save(user);
@@ -73,9 +80,9 @@ public class UserService {
         }
         else
         {
-          throw new ResourceNotFoundException("user not found for that id");
+            throw new ResourceNotFoundException("user not found for that id");
         }
     }
 
-}
 
+}

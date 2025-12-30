@@ -18,7 +18,7 @@ public class JobRequest
     private String companyName;
     private String salary;
     private Job_type jobType;
-    private int postedBy;
+    //private int postedBy;
 
 
 }

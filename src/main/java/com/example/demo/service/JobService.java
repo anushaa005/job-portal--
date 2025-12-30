@@ -14,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -35,8 +37,8 @@ public class JobService
         }
         else
         {
-            User user = userRepository.findById(request.getPostedBy())
-                    .orElseThrow(()-> new RuntimeException("Unknown User"));
+           String email = getAuthenticatedUserEmail();
+           User user = userRepository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException("user does not exist"));
            Job job = new Job();
            job.setTitle(request.getTitle());
            job.setDescription((request.getDescription()));
@@ -72,8 +74,17 @@ public class JobService
 
     public ApiResponse<Void> deleteJob(int job_id)
     {
+        String email = getAuthenticatedUserEmail();
+        User user = userRepository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException("user not found"));
         Job job = jobRepository.findJobById(job_id).orElseThrow(() -> new ResourceNotFoundException("No job found for this job_id to be deleted"));
-        jobRepository.delete(job);
+        if(job.getPostedBy().equals(user))
+        {
+            jobRepository.delete(job);
+        }
+        else
+        {
+            throw new ResourceNotFoundException("you are not authorised to delete this job");
+        }
         return ApiResponse.success("Job Deleted Successfully",null);
     }
 
@@ -113,6 +124,10 @@ public class JobService
        }
 
 
+    }
+    private String getAuthenticatedUserEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getName();
     }
 
 }
