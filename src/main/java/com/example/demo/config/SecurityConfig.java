@@ -51,7 +51,7 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
                         .requestMatchers("/api/jobs/**")
-                        .hasAnyRole("EMPLOYER", "JOB_SEEKER")
+                        .hasAnyRole("EMPLOYER", "JOBSEEKER")
                         .requestMatchers("/api/applications/**")
                         .hasRole("JOB_SEEKER")
                         .anyRequest().authenticated()
