@@ -88,8 +88,7 @@ public class JobService
         return ApiResponse.success("Job Deleted Successfully",null);
     }
 
-    public ApiResponse<Page<JobResponse>> searchJob(String keyword, String location, int page, int size, String sortBy, String direction)
-    {
+    public ApiResponse<Page<JobResponse>> searchJob(String keyword, String location, int page, int size, String sortBy, String direction) {
 
         Sort.Direction sortDirection =
                 direction.equalsIgnoreCase("desc")
@@ -100,30 +99,35 @@ public class JobService
         Pageable pageable = PageRequest.of(page, size, sort);
 
 
-       if(location==null && keyword!=null) {
-           Page<JobResponse> jobs = jobRepository.findByTitleContainingIgnoreCase(keyword, pageable)
-                   .map(this::mapToResponse);
-           return ApiResponse.success("Jobs fetched successfully", jobs);
-       }
-        else if (keyword==null && location!=null) {
+        if (location == null && keyword != null) {
+            Page<JobResponse> jobs = jobRepository.findByTitleContainingIgnoreCase(keyword, pageable)
+                    .map(this::mapToResponse);
+            return ApiResponse.success("Jobs fetched successfully", jobs);
+        } else if (keyword == null && location != null) {
             Page<JobResponse> jobs = jobRepository.findByLocationContainingIgnoreCase(location, pageable)
                     .map(this::mapToResponse);
             return ApiResponse.success("Jobs fetched successfully", jobs);
+        } else if (keyword != null && location != null) {
+            Page<JobResponse> jobs = jobRepository.findByTitleContainingIgnoreCaseAndLocationContainingIgnoreCase(keyword, location, pageable)
+                    .map(this::mapToResponse);
+            return ApiResponse.success("Jobs fetched successfully", jobs);
+        } else {
+            Page<JobResponse> jobs = jobRepository.findAll(pageable)
+                    .map(this::mapToResponse);
+
+
+            return ApiResponse.success("Jobs fetched successfully", jobs);
         }
-       else if (keyword!=null && location!=null) {
-           Page<JobResponse> jobs = jobRepository.findByTitleContainingIgnoreCaseAndLocationContainingIgnoreCase(keyword, location, pageable)
-                   .map(this::mapToResponse);
-           return ApiResponse.success("Jobs fetched successfully", jobs);
-       }
-       else  {
-           Page<JobResponse> jobs = jobRepository.findAll(pageable)
-                   .map(this::mapToResponse);
-
-
-           return ApiResponse.success("Jobs fetched successfully", jobs);
-       }
-
-
+    }
+    public ApiResponse<List<JobResponse>> getJobByUser()
+    {
+        String email = getAuthenticatedUserEmail();
+        User user = userRepository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException("User Does not exist"));
+        List<JobResponse> responses= jobRepository.findByPostedBy(user)
+                .stream()
+                .map(this:: mapToResponse)
+                .toList();
+        return ApiResponse.success("Jobs fetched successfully", responses);
     }
     private String getAuthenticatedUserEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

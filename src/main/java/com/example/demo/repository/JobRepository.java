@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.Job;
+import com.example.demo.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,6 +14,7 @@ public interface JobRepository extends JpaRepository<Job, Integer>{
     Optional<Job> findJobByTitle(String title);
     Optional<Job> findJobById(int id);
     Optional<Job> deleteJobById(int id);
+    List<Job> findByPostedBy(User user);
     Page<Job> findByTitleContainingIgnoreCase(String keyword, Pageable pageable);
     Page<Job> findByLocationContainingIgnoreCase(String location, Pageable pageable);
     Page<Job> findByTitleContainingIgnoreCaseAndLocationContainingIgnoreCase(

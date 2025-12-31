@@ -48,4 +48,9 @@ public class JobController {
     {
         return ResponseEntity.ok(jobService.deleteJob(job_id));
     }
+    @GetMapping("/my-job")
+    public ResponseEntity<ApiResponse<List<JobResponse>>> getJobByUser()
+    {
+        return ResponseEntity.ok(jobService.getJobByUser());
+    }
 }
